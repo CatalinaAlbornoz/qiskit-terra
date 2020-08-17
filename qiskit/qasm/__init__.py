@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2017.
@@ -52,4 +50,7 @@ except ImportError:
     HAS_PYGMENTS = False
 
 if HAS_PYGMENTS:
-    from .pygments import OpenQASMLexer, QasmHTMLStyle, QasmTerminalStyle
+    try:
+        from .pygments import OpenQASMLexer, QasmHTMLStyle, QasmTerminalStyle
+    except Exception:  # pylint: disable=broad-except
+        HAS_PYGMENTS = False

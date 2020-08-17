@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2017, 2020.
@@ -200,7 +198,7 @@ class PiecewiseLinearPauliRotations(FunctionalPauliRotations):
             num_ancilla_qubits -= 1
         return num_ancilla_qubits
 
-    def _configuration_is_valid(self, raise_on_failure: bool = True) -> bool:
+    def _check_configuration(self, raise_on_failure: bool = True) -> bool:
         valid = True
 
         if self.num_state_qubits is None:

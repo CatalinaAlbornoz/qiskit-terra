@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2017, 2020
@@ -138,7 +136,9 @@ class PauliTable(BaseOperator):
             The input array is not copied so multiple Pauli tables
             can share the same underlying array.
         """
-        if isinstance(data, str):
+        if isinstance(data, (np.ndarray, list)):
+            self._array = np.asarray(data, dtype=np.bool)
+        elif isinstance(data, str):
             # If input is a single Pauli string we convert to table
             self._array = PauliTable._from_label(data)
         elif isinstance(data, PauliTable):
@@ -153,8 +153,7 @@ class PauliTable(BaseOperator):
                     '{} is not an N-qubit identity'.format(data))
             self._array = np.zeros((1, 2 * data.num_qubits), dtype=np.bool)
         else:
-            # Convert to bool array avoiding copy if possible
-            self._array = np.asarray(data, dtype=np.bool)
+            raise QiskitError("Invalid input data for PauliTable.")
 
         # Input must be a (K, 2*N) shape matrix for M N-qubit Paulis.
         if self._array.ndim == 1:
@@ -959,7 +958,7 @@ class PauliTable(BaseOperator):
                 paulis[num_qubits - 1 - i] = 'Z'
             else:
                 paulis[num_qubits - 1 - i] = 'Y'
-        return str().join(paulis)
+        return ''.join(paulis)
 
     @staticmethod
     def _to_matrix(pauli, sparse=False, real_valued=False):

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2017, 2019.
@@ -19,8 +17,6 @@ from abc import ABCMeta, abstractmethod
 from typing import Tuple, List, Union, Optional
 
 from qiskit.pulse.channels import Channel
-
-from .timeslots import TimeslotCollection
 
 # pylint: disable=missing-type-doc
 
@@ -71,12 +67,6 @@ class ScheduleComponent(metaclass=ABCMeta):
     @abstractmethod
     def ch_stop_time(self, *channels: List[Channel]) -> int:
         """Stopping of the `channels` in schedule component."""
-        pass
-
-    @property
-    @abstractmethod
-    def timeslots(self) -> TimeslotCollection:
-        """Occupied time slots by this schedule component."""
         pass
 
     @property

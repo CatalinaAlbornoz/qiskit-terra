@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2017.
@@ -323,7 +321,7 @@ class Pauli:
     def to_instruction(self):
         """Convert to Pauli circuit instruction."""
         from qiskit.circuit import QuantumCircuit, QuantumRegister
-        from qiskit.extensions.standard import IGate, XGate, YGate, ZGate
+        from qiskit.circuit.library.standard_gates import IGate, XGate, YGate, ZGate
         gates = {'I': IGate(), 'X': XGate(), 'Y': YGate(), 'Z': ZGate()}
         label = self.to_label()
         num_qubits = self.num_qubits
@@ -472,9 +470,9 @@ class Pauli:
         Returns:
             Pauli: the random pauli
         """
-        rng = np.random.RandomState(seed)
-        z = rng.randint(2, size=num_qubits).astype(np.bool)
-        x = rng.randint(2, size=num_qubits).astype(np.bool)
+        rng = np.random.default_rng(seed)
+        z = rng.integers(2, size=num_qubits).astype(np.bool)
+        x = rng.integers(2, size=num_qubits).astype(np.bool)
         return cls(z, x)
 
     @classmethod

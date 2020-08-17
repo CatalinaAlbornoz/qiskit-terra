@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2019.
@@ -22,11 +20,11 @@ from typing import List
 from qiskit.circuit.measure import Measure
 from qiskit.circuit.quantumcircuit import QuantumCircuit
 from qiskit.exceptions import QiskitError
-from qiskit.extensions.standard.barrier import Barrier
-from qiskit.pulse.exceptions import PulseError
-from qiskit.pulse.schedule import Schedule
+from qiskit.circuit.barrier import Barrier
 from qiskit.pulse.channels import AcquireChannel
-from qiskit.scheduler.utils import measure
+from qiskit.pulse.exceptions import PulseError
+from qiskit.pulse.macros import measure
+from qiskit.pulse.schedule import Schedule
 
 from qiskit.scheduler.config import ScheduleConfig
 
@@ -118,7 +116,7 @@ def as_late_as_possible(circuit: QuantumCircuit,
         rev_stop_times.append(stop_time)
         update_times(circ_pulse_def.qubits, stop_time)
 
-    last_stop = max(t for t in qubit_time_available.values())
+    last_stop = max(t for t in qubit_time_available.values()) if qubit_time_available else 0
     start_times = [last_stop - t for t in reversed(rev_stop_times)]
     timed_schedules = [(time, cpd.schedule) for time, cpd in zip(start_times, circ_pulse_defs)
                        if not isinstance(cpd.schedule, Barrier)]
@@ -172,7 +170,7 @@ def translate_gates_to_pulse_defs(circuit: QuantumCircuit,
             circ_pulse_defs.append(CircuitPulseDef(schedule=inst, qubits=inst_qubits))
         elif isinstance(inst, Measure):
             if (len(inst_qubits) != 1 and len(clbits) != 1):
-                raise QiskitError("Qubit '{0}' or classical bit '{1}' errored because the "
+                raise QiskitError("Qubit '{}' or classical bit '{}' errored because the "
                                   "circuit Measure instruction only takes one of "
                                   "each.".format(inst_qubits, clbits))
             qubit_mem_slots[inst_qubits[0]] = clbits[0].index
@@ -182,7 +180,7 @@ def translate_gates_to_pulse_defs(circuit: QuantumCircuit,
                     CircuitPulseDef(schedule=inst_map.get(inst.name, inst_qubits, *inst.params),
                                     qubits=inst_qubits))
             except PulseError:
-                raise QiskitError("Operation '{0}' on qubit(s) {1} not supported by the backend "
+                raise QiskitError("Operation '{}' on qubit(s) {} not supported by the backend "
                                   "command definition. Did you remember to transpile your input "
                                   "circuit for the same backend?".format(inst.name, inst_qubits))
     if qubit_mem_slots:

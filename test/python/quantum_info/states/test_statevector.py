@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2017, 2019.
@@ -24,7 +22,7 @@ from numpy.testing import assert_allclose
 from qiskit.test import QiskitTestCase
 from qiskit import QiskitError
 from qiskit import QuantumRegister, QuantumCircuit
-from qiskit.extensions.standard import HGate
+from qiskit.circuit.library import HGate
 
 from qiskit.quantum_info.random import random_unitary
 from qiskit.quantum_info.states import Statevector
@@ -41,10 +39,10 @@ class TestStatevector(QiskitTestCase):
     def rand_vec(cls, n, normalize=False):
         """Return complex vector or statevector"""
         seed = np.random.randint(0, np.iinfo(np.int32).max)
-        logger.debug("rand_vec RandomState seeded with seed=%s", seed)
-        rng = np.random.RandomState(seed)
+        logger.debug("rand_vec default_rng seeded with seed=%s", seed)
+        rng = np.random.default_rng(seed)
 
-        vec = rng.rand(n) + 1j * rng.rand(n)
+        vec = rng.random(n) + 1j * rng.random(n)
         if normalize:
             vec /= np.sqrt(np.dot(vec, np.conj(vec)))
         return vec
@@ -127,6 +125,21 @@ class TestStatevector(QiskitTestCase):
         circ.x(0)
         circuit.ch(0, 1)
         target = Statevector.from_label('00').evolve(Operator(circuit))
+        psi = Statevector.from_instruction(circuit)
+        self.assertEqual(psi, target)
+
+        # Test initialize instruction
+        target = Statevector([1, 0, 0, 1j]) / np.sqrt(2)
+        circuit = QuantumCircuit(2)
+        circuit.initialize(target.data, [0, 1])
+        psi = Statevector.from_instruction(circuit)
+        self.assertEqual(psi, target)
+
+        # Test reset instruction
+        target = Statevector([1, 0])
+        circuit = QuantumCircuit(1)
+        circuit.h(0)
+        circuit.reset(0)
         psi = Statevector.from_instruction(circuit)
         self.assertEqual(psi, target)
 
@@ -250,6 +263,17 @@ class TestStatevector(QiskitTestCase):
             op_full = op0.tensor(op1).tensor(op2)
             target = Statevector(np.dot(op_full.data, vec))
             self.assertEqual(state.evolve(op, qargs=[2, 1, 0]), target)
+
+    def test_evolve_global_phase(self):
+        """Test evolve circuit with global phase."""
+        state_i = Statevector([1, 0])
+        qr = QuantumRegister(2)
+        phase = np.pi / 4
+        circ = QuantumCircuit(qr, global_phase=phase)
+        circ.x(0)
+        state_f = state_i.evolve(circ, qargs=[0])
+        target = Statevector([0, 1]) * np.exp(1j * phase)
+        self.assertEqual(state_f, target)
 
     def test_conjugate(self):
         """Test conjugate method."""
@@ -595,7 +619,7 @@ class TestStatevector(QiskitTestCase):
         """Test sample_counts method for qutrit state"""
         p = 0.3
         shots = 1000
-        threshold = 0.02 * shots
+        threshold = 0.03 * shots
         state = Statevector([np.sqrt(p), 0, np.sqrt(1 - p)])
         state.seed(100)
 
@@ -683,7 +707,7 @@ class TestStatevector(QiskitTestCase):
         with self.subTest(msg='memory'):
             memory = state.sample_memory(shots)
             self.assertEqual(len(memory), shots)
-            self.assertEqual(set(memory), set(['0', '2']))
+            self.assertEqual(set(memory), {'0', '2'})
 
     def test_reset_2qubit(self):
         """Test reset method for 2-qubit state"""
@@ -811,6 +835,36 @@ class TestStatevector(QiskitTestCase):
             else:
                 target = Statevector([0, 0, 1])
                 self.assertEqual(value, target)
+
+    def test_from_int(self):
+        """Test from_int method"""
+
+        with self.subTest(msg='from_int(0, 4)'):
+            target = Statevector([1, 0, 0, 0])
+            value = Statevector.from_int(0, 4)
+            self.assertEqual(target, value)
+
+        with self.subTest(msg='from_int(3, 4)'):
+            target = Statevector([0, 0, 0, 1])
+            value = Statevector.from_int(3, 4)
+            self.assertEqual(target, value)
+
+        with self.subTest(msg='from_int(8, (3, 3))'):
+            target = Statevector([0, 0, 0, 0, 0, 0, 0, 0, 1], dims=(3, 3))
+            value = Statevector.from_int(8, (3, 3))
+            self.assertEqual(target, value)
+
+    def test_expval(self):
+        """Test expectation_value method"""
+
+        psi = Statevector([1, 0, 0, 1]) / np.sqrt(2)
+        for label, target in [
+                ('II', 1), ('XX', 1), ('YY', -1), ('ZZ', 1),
+                ('IX', 0), ('YZ', 0), ('ZX', 0), ('YI', 0)]:
+            with self.subTest(msg="<{}>".format(label)):
+                op = Operator.from_label(label)
+                expval = psi.expectation_value(op)
+                self.assertAlmostEqual(expval, target)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2017, 2020.
@@ -19,15 +17,88 @@ Circuit Library (:mod:`qiskit.circuit.library`)
 
 .. currentmodule:: qiskit.circuit.library
 
+Standard Gates
+==============
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   Barrier
+   C3XGate
+   C4XGate
+   CCXGate
+   DCXGate
+   CHGate
+   CPhaseGate
+   CRXGate
+   CRYGate
+   CRZGate
+   CSwapGate
+   CSXGate
+   CUGate
+   CU1Gate
+   CU3Gate
+   CXGate
+   CYGate
+   CZGate
+   HGate
+   IGate
+   MCPhaseGate
+   MCXGate
+   MCXGrayCode
+   MCXRecursive
+   MCXVChain
+   Measure
+   MSGate
+   PhaseGate
+   RCCXGate
+   RC3XGate
+   Reset
+   RXGate
+   RXXGate
+   RYGate
+   RYYGate
+   RZGate
+   RZZGate
+   RZXGate
+   SGate
+   SdgGate
+   SwapGate
+   iSwapGate
+   SXGate
+   SXdgGate
+   TGate
+   TdgGate
+   UGate
+   U1Gate
+   U2Gate
+   U3Gate
+   XGate
+   YGate
+   ZGate
+
+Generalized Gates
+=================
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   Diagonal
+   MCMT
+   MCMTVChain
+   Permutation
+   GMS
+
 Boolean Logic Circuits
 ======================
 
 .. autosummary::
    :toctree: ../stubs/
 
-   InnerProduct
-   Permutation
+   AND
+   OR
    XOR
+   InnerProduct
 
 Basis Change Circuits
 =====================
@@ -67,25 +138,72 @@ Comparators
 
    IntegerComparator
 
-Characterization and Validation Circuits
-========================================
+Functions on binary variables
++++++++++++++++++++++++++++++
 
 .. autosummary::
    :toctree: ../stubs/
 
-   QuantumVolume
+   QuadraticForm
 
-Quantum Complexity Advantage Circuits
-=====================================
+Particular Quantum Circuits
+===========================
 
 .. autosummary::
    :toctree: ../stubs/
 
    FourierChecking
+   GraphState
+   HiddenLinearFunction
+   IQP
+   QuantumVolume
+   PhaseEstimation
+
+
+N-local circuits
+================
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   NLocal
+   TwoLocal
+   RealAmplitudes
+   EfficientSU2
+   ExcitationPreserving
+
+
+Data encoding circuits
+======================
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   PauliFeatureMap
+   ZFeatureMap
+   ZZFeatureMap
+
 """
 
+from .standard_gates import *
+from ..barrier import Barrier
+from ..measure import Measure
+from ..reset import Reset
 
-from .boolean_logic import Permutation, XOR, InnerProduct
+from .blueprintcircuit import BlueprintCircuit
+from .generalized_gates import (
+    Diagonal,
+    MCMT,
+    MCMTVChain,
+    Permutation,
+    GMS
+)
+from .boolean_logic import (
+    AND,
+    OR,
+    XOR,
+    InnerProduct,
+)
 from .basis_change import QFT
 from .arithmetic import (
     FunctionalPauliRotations,
@@ -93,7 +211,24 @@ from .arithmetic import (
     PiecewiseLinearPauliRotations,
     PolynomialPauliRotations,
     IntegerComparator,
-    WeightedAdder
+    WeightedAdder,
+    QuadraticForm,
+)
+from .n_local import (
+    NLocal,
+    TwoLocal,
+    RealAmplitudes,
+    EfficientSU2,
+    ExcitationPreserving,
+)
+from .data_preparation import (
+    PauliFeatureMap,
+    ZFeatureMap,
+    ZZFeatureMap
 )
 from .quantum_volume import QuantumVolume
 from .fourier_checking import FourierChecking
+from .graph_state import GraphState
+from .hidden_linear_function import HiddenLinearFunction
+from .iqp import IQP
+from .phase_estimation import PhaseEstimation

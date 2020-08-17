@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2017.
@@ -19,46 +17,6 @@ Quantum Circuit Extensions (:mod:`qiskit.extensions`)
 
 .. currentmodule:: qiskit.extensions
 
-Standard Extensions
-===================
-
-.. autosummary::
-   :toctree: ../stubs/
-
-   Barrier
-   CCXGate
-   CHGate
-   CRXGate
-   CRYGate
-   CRZGate
-   CSwapGate
-   CU1Gate
-   CU3Gate
-   CXGate
-   CYGate
-   CZGate
-   HGate
-   IGate
-   MSGate
-   RXGate
-   RXXGate
-   RYGate
-   RZGate
-   RZZGate
-   RZXGate
-   SGate
-   SdgGate
-   SwapGate
-   iSwapGate
-   DCXGate
-   TdgGate
-   U1Gate
-   U2Gate
-   U3Gate
-   XGate
-   YGate
-   ZGate
-
 Unitary Extensions
 ==================
 
@@ -66,6 +24,7 @@ Unitary Extensions
    :toctree: ../stubs/
 
    UnitaryGate
+   HamiltonianGate
 
 Simulator Extensions
 ====================
@@ -84,7 +43,11 @@ Initialization
    Initialize
 """
 
-from qiskit.extensions.quantum_initializer.initializer import Initialize
-from .standard import *
+# import all standard gates
+from qiskit.circuit.library.standard_gates import *
+from qiskit.circuit.barrier import Barrier
+
+from .quantum_initializer.initializer import Initialize
 from .unitary import UnitaryGate
+from .hamiltonian_gate import HamiltonianGate
 from .simulator import Snapshot

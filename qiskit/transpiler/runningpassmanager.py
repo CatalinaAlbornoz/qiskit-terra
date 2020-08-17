@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2017, 2019.
@@ -45,8 +43,8 @@ class RunningPassManager:
         self.working_list = []
 
         # global property set is the context of the circuit held by the pass manager
-        # as it runs through its scheduled passes. Analysis passes may update the property_set,
-        # but transformation passes have read-only access (via the fenced_property_set).
+        # as it runs through its scheduled passes. The flow controller
+        # have read-only access (via the fenced_property_set).
         self.property_set = PropertySet()
         self.fenced_property_set = FencedPropertySet(self.property_set)
 
@@ -150,8 +148,8 @@ class RunningPassManager:
         return dag
 
     def _run_this_pass(self, pass_, dag):
+        pass_.property_set = self.property_set
         if pass_.is_transformation_pass:
-            pass_.property_set = self.fenced_property_set
             # Measure time if we have a callback or logging set
             start_time = time()
             new_dag = pass_.run(dag)
@@ -171,7 +169,6 @@ class RunningPassManager:
                                                                          type(new_dag)))
             dag = new_dag
         elif pass_.is_analysis_pass:
-            pass_.property_set = self.property_set
             # Measure time if we have a callback or logging set
             start_time = time()
             pass_.run(FencedDAGCircuit(dag))
@@ -215,8 +212,7 @@ class FlowController():
         self.options = options
 
     def __iter__(self):
-        for pass_ in self.passes:
-            yield pass_
+        yield from self.passes
 
     def dump_passes(self):
         """Fetches the passes added to this flow controller.
@@ -304,8 +300,7 @@ class DoWhileController(FlowController):
 
     def __iter__(self):
         for _ in range(self.max_iteration):
-            for pass_ in self.passes:
-                yield pass_
+            yield from self.passes
 
             if not self.do_while():
                 return
@@ -323,8 +318,7 @@ class ConditionalController(FlowController):
 
     def __iter__(self):
         if self.condition():
-            for pass_ in self.passes:
-                yield pass_
+            yield from self.passes
 
 
 # Default controllers

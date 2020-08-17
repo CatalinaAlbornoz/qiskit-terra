@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2020.
@@ -45,10 +43,11 @@ class TestFakeBackends(QiskitTestCase):
         cls.circuit.x(1)
         cls.circuit.measure_all()
 
-    @combine(backend=FAKE_PROVIDER.backends(),
+    @combine(backend=[be for be in FAKE_PROVIDER.backends()
+                      if be.configuration().num_qubits > 1],
              optimization_level=[0, 1, 2, 3])
     def test_circuit_on_fake_backend(self, backend, optimization_level):
-        if not HAS_AER and backend.configuration().n_qubits > 20:
+        if not HAS_AER and backend.configuration().num_qubits > 20:
             self.skipTest(
                 'Unable to run fake_backend %s without qiskit-aer' %
                 backend.configuration().backend_name)
@@ -67,3 +66,41 @@ class TestFakeBackends(QiskitTestCase):
             self.assertIsInstance(backend.properties().to_dict(), dict)
         else:
             self.assertTrue(backend.configuration().simulator)
+
+    @data(*FAKE_PROVIDER.backends())
+    def test_to_dict_configuration(self, backend):
+        configuration = backend.configuration()
+        if configuration.open_pulse:
+            self.assertLess(configuration.dt, 1e-6)
+            self.assertLess(configuration.dtm, 1e-6)
+            for i in configuration.qubit_lo_range:
+                self.assertGreater(i[0], 1e6)
+                self.assertGreater(i[1], 1e6)
+                self.assertLess(i[0], i[1])
+
+            for i in configuration.meas_lo_range:
+                self.assertGreater(i[0], 1e6)
+                self.assertGreater(i[0], 1e6)
+                self.assertLess(i[0], i[1])
+
+            for i in configuration.rep_times:
+                self.assertGreater(i, 0)
+                self.assertLess(i, 1)
+
+        self.assertIsInstance(configuration.to_dict(), dict)
+
+    @data(*FAKE_PROVIDER.backends())
+    def test_defaults_to_dict(self, backend):
+        if hasattr(backend, 'defaults'):
+            defaults = backend.defaults()
+            self.assertIsInstance(defaults.to_dict(), dict)
+
+            for i in defaults.qubit_freq_est:
+                self.assertGreater(i, 1e6)
+                self.assertGreater(i, 1e6)
+
+            for i in defaults.meas_freq_est:
+                self.assertGreater(i, 1e6)
+                self.assertGreater(i, 1e6)
+        else:
+            self.skipTest('Backend %s does not have defaults' % backend)

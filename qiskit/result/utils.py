@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2017, 2018.
@@ -16,7 +14,7 @@
 
 from functools import reduce
 from re import match
-from qiskit.validation.base import Obj
+
 from qiskit.exceptions import QiskitError
 
 
@@ -46,7 +44,7 @@ def marginal_counts(result, indices=None):
             new_counts_hex = {}
             for k, v in new_counts.items():
                 new_counts_hex[_bin_to_hex(k)] = v
-            experiment_result.data.counts = Obj(**new_counts_hex)
+            experiment_result.data.counts = new_counts_hex
             experiment_result.header.memory_slots = len(indices)
     else:
         counts = result
@@ -77,7 +75,7 @@ def _marginalize(counts, indices=None):
         return ret
 
     if not set(indices).issubset(set(range(num_clbits))):
-        raise QiskitError('indices must be in range [0, {0}].'.format(num_clbits-1))
+        raise QiskitError('indices must be in range [0, {}].'.format(num_clbits-1))
 
     # Sort the indices to keep in decending order
     # Since bitstrings have qubit-0 as least significant bit

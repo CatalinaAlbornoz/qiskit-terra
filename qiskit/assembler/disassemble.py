@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2017, 2019.
@@ -77,6 +75,8 @@ def _experiments_to_circuits(qobj):
                             params=params)
                     elif i.name == 'initialize':
                         _inst = instr_method(params, qubits)
+                    elif i.name == 'isometry':
+                        _inst = instr_method(*params, qubits, clbits)
                     else:
                         _inst = instr_method(*params, *qubits, *clbits)
                 elif name == 'bfunc':
